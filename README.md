@@ -139,9 +139,13 @@ QUEUE_CONNECTION=database
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
 | POST | `/api/attendances/check-in` | Record check-in | Yes |
-| POST | `/api/attendances/check-out` | Record check-out | Yes |
+| POST | `/api/attendances/check-out` | Record check-out (via `attendance_id` or `employee_id`) | Yes |
 | GET | `/api/attendances` | List attendance records | Yes |
 | GET | `/api/attendances/{id}` | Get attendance details | Yes |
+
+**Check-out Parameters:**
+- `attendance_id`: The ID of the attendance record.
+- `employee_id`: Alternatively, provide the Employee Identifier (e.g., `EMP-1001`) to check out their active session.
 
 **Query Parameters:**
 - `employee_id` - Filter by employee
@@ -227,16 +231,16 @@ app/
 ├── Exports/
 │   └── AttendancesExport.php
 ├── Http/
-│   ├── Controllers/Api/
+│   ├── Controllers/Api/V1/
 │   │   ├── AttendanceController.php
 │   │   ├── AuthController.php
 │   │   ├── EmployeeController.php
 │   │   └── ReportController.php
-│   ├── Requests/
+│   ├── Requests/V1/
 │   │   ├── Attendance/
 │   │   ├── Auth/
 │   │   └── Employee/
-│   └── Resources/
+│   └── Resources/V1/
 │       ├── AttendanceResource.php
 │       └── EmployeeResource.php
 ├── Jobs/
@@ -292,9 +296,18 @@ Start the queue worker:
 ./vendor/bin/sail artisan queue:work
 ```
 
-### PDF Generation Issues
+### PDF Generation Issues (`wkhtmltopdf`)
 
-Ensure wkhtmltopdf is available in the Sail container. It should be pre-installed with the Snappy package.
+If you encounter `wkhtmltopdf` errors on Windows (locally):
+1.  Install [wkhtmltopdf](https://wkhtmltopdf.org/downloads.html).
+2.  Add the binary path to your `.env`:
+    ```env
+    WKHTMLTOPDF_BINARY="C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+    WKHTMLTOIMAGE_BINARY="C:\Program Files\wkhtmltopdf\bin\wkhtmltoimage.exe"
+    ```
+    *(Ensure the paths match your installation)*
+
+Ensure `wkhtmltopdf` is available. On Docker (Sail), it's pre-installed if you use a compatible image, or you may need to install it in a custom Dockerfile.
 
 ## License
 
