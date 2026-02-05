@@ -264,8 +264,7 @@ app/
 - first_name
 - last_name
 - email (unique)
-- phone (nullable)
-- photo (nullable)
+- phone (nullable) 
 - timestamps
 
 ### Attendances

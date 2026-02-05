@@ -17,8 +17,6 @@ class AttendanceController extends Controller
     /**
      * List of attendance records with optional filtering.
      */
-
-    
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Attendance::with('employee');
@@ -57,7 +55,10 @@ class AttendanceController extends Controller
      */
     public function checkIn(CheckInRequest $request): JsonResponse
     {
-        $employeeId = $request->validated()['employee_id'];
+        $identifier = $request->validated()['employee_id'];
+        $employee = \App\Models\Employee::where('employee_identifier', $identifier)->firstOrFail();
+        $employeeId = $employee->id;
+        
         $today = now()->toDateString();
 
         // Check if employee already checked in today
@@ -93,9 +94,26 @@ class AttendanceController extends Controller
      */
     public function checkOut(CheckOutRequest $request): JsonResponse
     {
-        $attendanceId = $request->validated()['attendance_id'];
+        $data = $request->validated();
 
-        $attendance = Attendance::findOrFail($attendanceId);
+        if (!empty($data['attendance_id'])) {
+            $attendance = Attendance::findOrFail($data['attendance_id']);
+        } else {
+            // Resolve via employee_id
+            $identifier = $data['employee_id'];
+            $employee = \App\Models\Employee::where('employee_identifier', $identifier)->firstOrFail();
+            
+            $attendance = Attendance::where('employee_id', $employee->id)
+                ->whereNull('check_out')
+                ->latest()
+                ->first();
+
+            if (!$attendance) {
+                return response()->json([
+                    'message' => 'No active check-in found for this employee.',
+                ], 404);
+            }
+        }
 
         if ($attendance->check_out) {
             return response()->json([

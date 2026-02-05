@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Employee;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,10 +18,10 @@ class AttendanceFactory extends Factory
     public function definition(): array
     {
         $checkIn = fake()->dateTimeBetween('-30 days', 'now');
-        $checkOut = fake()->boolean(80) ? fake()->dateTimeBetween($checkIn, $checkIn->format('Y-m-d') . ' 23:59:59') : null;
+        $checkOut = fake()->boolean(80) ? fake()->dateTimeBetween($checkIn, $checkIn->format('Y-m-d').' 23:59:59') : null;
 
         return [
-            'employee_id' => \App\Models\Employee::factory(),
+            'employee_id' => Employee::factory(),
             'check_in' => $checkIn,
             'check_out' => $checkOut,
             'date' => $checkIn->format('Y-m-d'),

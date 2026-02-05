@@ -22,7 +22,8 @@ class CheckOutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'attendance_id' => ['required', 'exists:attendances,id'],
+            'attendance_id' => ['required_without:employee_id', 'nullable', 'integer', 'exists:attendances,id'],
+            'employee_id' => ['required_without:attendance_id', 'nullable', 'exists:employees,employee_identifier'],
         ];
     }
 }

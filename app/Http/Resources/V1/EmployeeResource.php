@@ -21,8 +21,7 @@ class EmployeeResource extends JsonResource
             'last_name' => $this->last_name,
             'full_name' => $this->first_name.' '.$this->last_name,
             'email' => $this->email,
-            'phone' => $this->phone,
-            'photo' => $this->photo ? asset('storage/'.$this->photo) : null,
+            'phone' => $this->phone, 
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];

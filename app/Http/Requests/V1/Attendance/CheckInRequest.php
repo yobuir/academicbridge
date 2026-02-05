@@ -22,7 +22,7 @@ class CheckInRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_id' => ['required', 'exists:employees,id'],
+            'employee_id' => ['required', 'exists:employees,employee_identifier'],
         ];
     }
 }

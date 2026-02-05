@@ -9,13 +9,17 @@ class Employee extends Model
 {
     use HasFactory;
 
+    public function getRouteKeyName()
+    {
+        return 'employee_identifier';
+    }
+
     protected $fillable = [
         'employee_identifier',
         'first_name',
         'last_name',
         'email',
         'phone',
-        'photo',
     ];
 
     protected function casts(): array

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\V1\Employee;
 
+use App\Models\Employee;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateEmployeeRequest extends FormRequest
 {
@@ -21,15 +23,30 @@ class UpdateEmployeeRequest extends FormRequest
      */
     public function rules(): array
     {
-        $employeeId = $this->route('employee');
+        $employee = $this->route('employee');
+
+        $employeeId = $employee instanceof Employee
+            ? $employee->id
+            : Employee::where('employee_identifier', $employee)->value('id');
 
         return [
-            'employee_identifier' => ['sometimes', 'required', 'string', 'max:50', 'unique:employees,employee_identifier,'.$employeeId],
+            'employee_identifier' => [
+                'sometimes',
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('employees', 'employee_identifier')->ignore($employeeId),
+            ],
             'first_name' => ['sometimes', 'required', 'string', 'max:255'],
             'last_name' => ['sometimes', 'required', 'string', 'max:255'],
-            'email' => ['sometimes', 'required', 'string', 'email', 'max:255', 'unique:employees,email,'.$employeeId],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'email' => [
+                'sometimes',
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('employees', 'email')->ignore($employeeId),
+            ],
         ];
     }
 }

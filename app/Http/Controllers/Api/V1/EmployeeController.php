@@ -25,10 +25,10 @@ class EmployeeController extends Controller
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->where(\Illuminate\Support\Facades\DB::raw('LOWER(first_name)'), 'LIKE', '%'.strtolower($search).'%')
-                    ->orWhere(\Illuminate\Support\Facades\DB::raw('LOWER(last_name)'), 'LIKE', '%'.strtolower($search).'%')
-                    ->orWhere(\Illuminate\Support\Facades\DB::raw('LOWER(email)'), 'LIKE', '%'.strtolower($search).'%')
-                    ->orWhere(\Illuminate\Support\Facades\DB::raw('LOWER(employee_identifier)'), 'LIKE', '%'.strtolower($search).'%');
+                $q->where('last_name', 'ILIKE', '%' . $search . '%')
+                    ->orWhere('first_name', 'ILIKE', '%' . $search . '%')
+                    ->orWhere('email', 'ILIKE', '%' . $search . '%')
+                    ->orWhere('employee_identifier', 'ILIKE', '%' . $search . '%');
             });
         }
 
@@ -58,12 +58,14 @@ class EmployeeController extends Controller
     public function store(StoreEmployeeRequest $request): JsonResponse
     {
         $data = $request->validated();
-
-        // Handle photo upload
-        if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')->store('employees/photos', 'public');
-        }
-
+        
+        // Auto-generate employee_identifier
+        do {
+            $identifier = 'EMP-' . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        } while (Employee::where('employee_identifier', $identifier)->exists());
+        
+        $data['employee_identifier'] = $identifier;
+ 
         $employee = Employee::create($data);
 
         return response()->json([
@@ -89,15 +91,6 @@ class EmployeeController extends Controller
     {
         $data = $request->validated();
 
-        // Handle photo upload
-        if ($request->hasFile('photo')) {
-            // Delete old photo if exists
-            if ($employee->photo) {
-                Storage::disk('public')->delete($employee->photo);
-            }
-            $data['photo'] = $request->file('photo')->store('employees/photos', 'public');
-        }
-
         $employee->update($data);
 
         return response()->json([
@@ -110,12 +103,7 @@ class EmployeeController extends Controller
      * Remove the specified employee.
      */
     public function destroy(Employee $employee): JsonResponse
-    {
-        // Delete photo if exists
-        if ($employee->photo) {
-            Storage::disk('public')->delete($employee->photo);
-        }
-
+    { 
         $employee->delete();
 
         return response()->json([

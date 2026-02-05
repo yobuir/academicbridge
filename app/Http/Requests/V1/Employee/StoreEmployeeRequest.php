@@ -22,12 +22,12 @@ class StoreEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_identifier' => ['required', 'string', 'max:50', 'unique:employees,employee_identifier'],
+            // 'employee_identifier' is auto-generated in the controller
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:employees,email'],
             'phone' => ['nullable', 'string', 'max:20'],
-            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+           
         ];
     }
 }
